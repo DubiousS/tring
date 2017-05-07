@@ -28,3 +28,19 @@ int slen(const char *one)
     }
     return i;
 }
+
+int sspn(const char *string)
+{
+    char arr[] = {':', '*', '?', '"', '<', '>', '|'};
+    for (int i = 0; string[i] != '\0'; i++) {
+        for (int j = 0; j < slen(arr); j++) {
+            if ((string[i] == arr[0]) && (string[i + 1] == '/')) {
+                continue;
+            }
+            if (string[i] == arr[j]) {
+                return i;
+            }
+        }
+    }
+    return 0;
+}

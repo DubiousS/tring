@@ -4,7 +4,7 @@ install:
   - make
 
 script: 
-  - bin/deposit-calc-test
+  - bin/string-test
     
 after_success:
   - make clean

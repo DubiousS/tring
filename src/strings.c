@@ -32,7 +32,8 @@ int slen(const char *one)
 int sspn(const char *string)
 {
     char arr[] = {':', '*', '?', '"', '<', '>', '|'};
-    for (int i = 0; string[i] != '\0'; i++) {
+    int i;
+    for (i = 0; string[i] != '\0'; i++) {
         for (int j = 0; j < slen(arr); j++) {
             if ((string[i] == arr[0]) && (string[i + 1] == '/')) {
                 continue;

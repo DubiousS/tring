@@ -74,7 +74,7 @@ int process(char *string, char *symbol_one, char *symbol_two)
     char pattern_ru[] = {'r', 'u', '\0'};
     char pattern_com[] = {'c', 'o', 'm', '\0'};
     char pattern_org[] = {'o', 'r', 'g', '\0'};
-    int i = 0, k = 0, error = 0, delta = 0;
+    int i = 0, k = 0, error = 0, delta = 0, h = 0;
     char domain[MAX_DOMAIN];
     char domain_head[MAX_DOMAIN];
 
@@ -94,35 +94,41 @@ int process(char *string, char *symbol_one, char *symbol_two)
         string++;
         i++;
     }
-
+    if(i == 0) return 0;
     domain[i] = '\0';
     i = 0;
 
     while(domain[i] != '\0') {
-        if(domain[i] == '.') {
+        h++;
+        if(domain[i] == '.' && h > 1) {
             error++;
             k = 0;
             i++;
         } else if(  (domain[0] > 64 && domain[0] < 91) || 
                     (domain[0] > 96 && domain[0] < 123) ||
                     (domain[0] > 47 && domain[0] < 58)) {
-            if(domain[0] > 47 && domain[0] < 58) delta = 1;
+            if(domain[0] > 47 && domain[0] < 58) {
+                delta = 1;
+            }
             domain_head[k] = domain[i];
             k++;
             i++;
-        } else delta = 1;
+        } else {
+            delta = 1;
+            break;
+        }
     }
     domain_head[k] = '\0';
 
     if(error > 3) return 0;
     
-    if( scmp(domain_head, pattern_ru) || scmp(domain_head, pattern_org) || scmp(domain_head, pattern_com)) {
+    if(h > 3 && (scmp(domain_head, pattern_ru) || scmp(domain_head, pattern_org) || scmp(domain_head, pattern_com))) {
         i = 0;
         if(delta == 1) return 1;
         if(check(string) == 0 && symbol_one != NULL && symbol_two != NULL) {
             while(*(null + i) != '\0') {
             if(*(null + i) == *symbol_one) *(null + i) = *symbol_two;
-                i++;
+            i++;
             }
         }
         return 2;
@@ -140,15 +146,19 @@ int output(const char *string, int error, int code)
             printf("Is URL: " GRN "yes" RESET "\n");
             printf("Domain name is correct: " GRN "yes" RESET "\n");
             printf("Updated path: %s\n", string);
+            return 2;
         } else if(code == 1) {
             printf("Is URL: " GRN "yes" RESET "\n");
             printf("Domain name is correct: " RED "no" RESET "\n");
+            return 1;
         } else {
             printf("Is URL:" RED " no\n" RESET);
+            return 0;
         }
     } else if(error == -1) {
         printf(RED "Uncorrect length path!" RESET "\n");
-    } else if(error == 1) {
+        return -1;
+    } else if(error > 0) {
         printf(RED "Uncorrect symbol!" RESET "\n");
         while(*string != '\0') {
             if(i == error) {
@@ -159,6 +169,7 @@ int output(const char *string, int error, int code)
             string++;
         }
         printf("\n");
+        return -2;
     }
 
     return 0;

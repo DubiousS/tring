@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "strings.h"
+#include "../thirdparty/ctest.h"
 #include "function.h"
 
 int main()

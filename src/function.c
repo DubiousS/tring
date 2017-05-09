@@ -52,6 +52,7 @@ int input(char *string, char *symbol_one, char *symbol_two)
            *symbol_two == '_') {} 
             else return -1;
     }
+    
     return 1;  
 }
 
@@ -62,6 +63,7 @@ int check(char *string)
     } else if (sspn(string) > 0) {
         return sspn(string);
     }
+
     return 0; 
 }
 int process(char *string, char *symbol_one, char *symbol_two)
@@ -75,6 +77,9 @@ int process(char *string, char *symbol_one, char *symbol_two)
     int i = 0, k = 0, error = 0, delta = 0;
     char domain[MAX_DOMAIN];
     char domain_head[MAX_DOMAIN];
+
+
+
     while(pattern_https[i] != '\0') {
         if(pattern_https[i] == *string) {
             i++;
@@ -82,14 +87,17 @@ int process(char *string, char *symbol_one, char *symbol_two)
            continue;
        } else return 0;
     }
+
     i = 0;
     while(*string != '/' && *string != '\0') {
         domain[i] = *string;
         string++;
         i++;
     }
+
     domain[i] = '\0';
     i = 0;
+
     while(domain[i] != '\0') {
         if(domain[i] == '.') {
             error++;
@@ -119,12 +127,14 @@ int process(char *string, char *symbol_one, char *symbol_two)
         }
         return 2;
     }
+
     return 0;
 }
 
 int output(const char *string, int error, int code) 
 {
     int i = 0;
+
     if(error == 0) {
         if(code == 2) {
             printf("Is URL: " GRN "yes" RESET "\n");
@@ -150,5 +160,6 @@ int output(const char *string, int error, int code)
         }
         printf("\n");
     }
+
     return 0;
 }

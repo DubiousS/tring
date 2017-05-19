@@ -18,6 +18,8 @@ int input(char *string, char *symbol_one, char *symbol_two);
 int check(char *string);
 int process(char *string, char *symbol_one, char *symbol_two);
 int output(const char *string, int error, int code);
+int fix_dir(char *string, char *symbol_one, char *symbol_two);
+int domain_check(char *str);
 
 
 #endif

@@ -71,14 +71,9 @@ int process(char *string, char *symbol_one, char *symbol_two)
     char *null; 
     null = string;
     char pattern_https[] = {'h', 't', 't', 'p', ':', '/', '/', '\0'};
-    char pattern_ru[] = {'r', 'u', '\0'};
-    char pattern_com[] = {'c', 'o', 'm', '\0'};
-    char pattern_org[] = {'o', 'r', 'g', '\0'};
-    int i = 0, k = 0, error = 0, delta = 0, h = 0;
+
+    int i = 0;
     char domain[MAX_DOMAIN];
-    char domain_head[MAX_DOMAIN];
-
-
 
     while(pattern_https[i] != '\0') {
         if(pattern_https[i] == *string) {
@@ -94,47 +89,13 @@ int process(char *string, char *symbol_one, char *symbol_two)
         string++;
         i++;
     }
-    if(i == 0) return 0;
+    if(i < 0) return 0;
     domain[i] = '\0';
-    i = 0;
 
-    while(domain[i] != '\0') {
-        h++;
-        if(domain[i] == '.' && h > 1) {
-            error++;
-            k = 0;
-            i++;
-        } else if(  (domain[0] > 64 && domain[0] < 91) || 
-                    (domain[0] > 96 && domain[0] < 123) ||
-                    (domain[0] > 47 && domain[0] < 58)) {
-            if(domain[0] > 47 && domain[0] < 58) {
-                delta = 1;
-            }
-            domain_head[k] = domain[i];
-            k++;
-            i++;
-        } else {
-            delta = 1;
-            break;
-        }
-    }
-    domain_head[k] = '\0';
+    i = domain_check(domain);
 
-    if(error > 3) return 0;
-    
-    if(h > 3 && (scmp(domain_head, pattern_ru) || scmp(domain_head, pattern_org) || scmp(domain_head, pattern_com))) {
-        i = 0;
-        if(delta == 1) return 1;
-        if(check(string) == 0 && symbol_one != NULL && symbol_two != NULL) {
-            while(*(null + i) != '\0') {
-            if(*(null + i) == *symbol_one) *(null + i) = *symbol_two;
-            i++;
-            }
-        }
-        return 2;
-    }
-
-    return 0;
+    if(check(string) == 0) fix_dir(null, symbol_one, symbol_two);
+    return i;
 }
 
 int output(const char *string, int error, int code) 
@@ -173,4 +134,83 @@ int output(const char *string, int error, int code)
     }
 
     return 0;
+}
+
+
+int fix_dir(char *string, char *symbol_one, char *symbol_two)
+{
+    int k = 0, i = 0;
+    while(*(string + k) != '\0') {
+        if(*(string + k) == '/') i++;
+        k++;
+    }
+    k = 0;
+    if(symbol_one != NULL && symbol_two != NULL) {
+        while(*string != '\0') {
+            if(*string == '/') k++;
+            if(k == 3) {
+                break;
+            }
+            string++;
+        }
+        while(*string  != '\0') {
+            if(*string == '/') k++;
+            if(k == i + 1) break; 
+            if(*string == *symbol_one) *string = *symbol_two;
+            string++;
+        }
+    }
+    return 0;
+}
+
+int domain_check(char *str)
+{
+    int i = 0, ip = 0, status = 0, point = 0, ip_first = 0;
+    if(slen(str) <= 3) {
+        return 0;
+    }
+    while(1) {
+        if(str[i] > 47 && str[i] < 58) {
+            ip = (ip * 10) + str[i] - 48;
+            i++;
+        } else if(str[i] == '.' || str[i] == '/') {
+            if(ip < 0 || ip > 255) break;
+            if(point == 3 && ip_first > 0) return 2;
+            if(point == 3 && ip_first == 0) return 1;
+            if(point == 0) ip_first = ip;
+            point++;
+            i++;
+            ip = 0;
+        } else if(str[i] == '\0') {
+            if(ip < 0 || ip > 255) break;
+            if(point == 3 && ip_first > 0) return 2;
+            if(point == 3 && ip_first == 0) return 1;
+        } else break;
+    }
+
+
+
+    point = 0;
+    i = 0;
+    status = 2;
+    while(str[i] != '\0') {
+        if(str[i] == '.') {
+            point++;
+            i++;
+        } else if((str[0] > 64 && str[0] < 91) || (str[0] > 96 && str[0] < 123) ||
+                  (str[0] > 47 && str[0] < 58)) {
+            if(str[0] > 47 && str[0] < 58) {
+                status =  1;
+                break;
+            }
+            i++;
+        } else return 0;
+    }
+    if(point > 4) status = 1;
+    if(!scmp(str + slen(str) - 3, ".ru")) {
+        if(!scmp(str + slen(str) - 4, ".com") || !scmp(str + slen(str) - 4, ".org")) {
+            status = 1;
+        }
+    }
+    return status;
 }

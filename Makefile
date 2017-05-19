@@ -1,6 +1,4 @@
 FOLDER := src/
-FOLDER_TWO := build/src/
-FOLDER_TEST := build/test/
 TARGET := bin/string
 CC := gcc
 CFLAGS :=  -Wall -Werror -c
